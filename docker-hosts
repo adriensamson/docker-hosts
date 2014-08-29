@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+if [ $# -lt 2 ]
+then
+    echo "Usage: $0 <dns-name> <container-id>"
+    exit 1
+fi
+
+NAME=$1
+CONTAINER=$2
+
+IP=$(docker inspect -f '{{ .NetworkSettings.IPAddress }}' $CONTAINER)
+
+if [ -z "$IP" ]
+then
+    echo No IP found for $CONTAINER
+    exit 2
+fi
+
+TO_REMOVE_LINE=$(grep " $NAME " /etc/hosts 2>/dev/null)
+
+if [ -n "$TO_REMOVE_LINE" ]
+then
+   echo removed line from /etc/hosts:
+   echo "$TO_REMOVE_LINE"
+   sed -i "/ $NAME /d" /etc/hosts
+fi
+
+echo "$IP $NAME # $CONTAINER" >>/etc/hosts
