@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+# usage: replace myhost -t -i ubuntu:latest bash
+NAME=$1
+shift
+CONTAINER=$(docker run -d $@)
+HOST_OUTPUT=$(/path/to/docker-hosts $NAME $CONTAINER)
+if [ -n "$HOST_OUTPUT" ]
+then
+    OLD_CONTAINER=$( (tail -n1 | awk '{ print $4; }') << eof
+$HOST_OUTPUT
+eof
+    )
+    docker stop $OLD_CONTAINER    
+fi
+
+
